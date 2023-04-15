@@ -33,6 +33,10 @@ param sqlServerAdministratorPassword string
 @description('The name and tier of the sql db SKU.')
 param sqlDatabaseSku object
 
+@description('kv url')
+param vaultUri string
+
+
 var appServicePlanName = '${environmentName}-${solutionName}-plan'
 var appServiceAppName = '${environmentName}-${solutionName}-app'
 var sqlServerName = '${environmentName}-${solutionName}-sql'
@@ -57,18 +61,43 @@ resource appServiceApp 'Microsoft.Web/sites@2022-03-01' = {
   }
 }
 
-// resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' = {
-//   name: 'PetersVault1'
-//   location: location
-//   properties: {
-//     tenantId: subscription().tenantId
-//     sku: {
-//       family: 'A'
-//       name: 'string'
-//     }
-//     enabledForTemplateDeployment: true
-//   }
-// }
+resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' = {
+  name: 'PetersVault1'
+  location: 'australiaeast'
+  properties: {
+    sku: {
+        family: 'A'
+        name: 'standard'
+    }
+    accessPolicies: [
+      {
+          tenantId: subscription().tenantId
+          objectId: 'c591fc1c-743a-47a9-99f7-55eb3d011467' // has tro be hardcoded as bicep can't give this yet
+          permissions: {
+              keys: [
+                  'all'
+              ]
+              secrets: [
+                  'all'
+              ]
+              certificates: [
+                  'all'
+              ]
+              storage: [
+                  'all'
+              ]
+          }
+      }
+  ]
+    tenantId: subscription().tenantId
+    enabledForDeployment: false
+    enabledForTemplateDeployment: true
+    enableSoftDelete: true
+    softDeleteRetentionInDays: 90
+    vaultUri: vaultUri
+    publicNetworkAccess: 'Enabled'
+    }
+}
 
 resource sqlServer 'Microsoft.Sql/servers@2022-05-01-preview' = {
   name: sqlServerName
@@ -77,7 +106,7 @@ resource sqlServer 'Microsoft.Sql/servers@2022-05-01-preview' = {
     administratorLogin: sqlServerAdministratorLogin
     administratorLoginPassword: sqlServerAdministratorPassword
   }
-  // dependsOn: [ keyVault ]
+  dependsOn: [ keyVault ]
 }
 
 resource sqlDatabase 'Microsoft.Sql/servers/databases@2022-05-01-preview' = {
@@ -88,5 +117,5 @@ resource sqlDatabase 'Microsoft.Sql/servers/databases@2022-05-01-preview' = {
     name: sqlDatabaseSku.name
     tier: sqlDatabaseSku.tier
   }
-  // dependsOn: [ keyVault ]
+  dependsOn: [ keyVault ]
 }

@@ -2,33 +2,36 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-      "appServicePlanSku": {
-        "value": {
-          "name": "F1",
-          "tier": "Free"
+        "appServicePlanSku": {
+            "value": {
+                "name": "F1",
+                "tier": "Free"
+            }
+        },
+        "sqlDatabaseSku": {
+            "value": {
+                "name": "Standard",
+                "tier": "Standard"
+            }
+        },
+        "sqlServerAdministratorLogin": {
+            "reference": {
+                "keyVault": {
+                    "id": "/subscriptions/f39cfa98-3294-41b9-888b-f25ea18c9dd2/resourceGroups/my-rg2/providers/Microsoft.KeyVault/vaults/PetersVault1"
+                },
+                "secretName": "sqlServerAdministratorLogin"
+            }
+        },
+        "sqlServerAdministratorPassword": {
+            "reference": {
+                "keyVault": {
+                    "id": "/subscriptions/f39cfa98-3294-41b9-888b-f25ea18c9dd2/resourceGroups/my-rg2/providers/Microsoft.KeyVault/vaults/PetersVault1"
+                },
+                "secretName": "sqlServerAdministratorPassword"
+            }
+        },
+        "vaultUri": {
+            "value": "https://petersvault1.vault.azure.net/"
         }
-      },
-      "sqlDatabaseSku": {
-        "value": {
-          "name": "Standard",
-          "tier": "Standard"
-        }
-      },
-      "sqlServerAdministratorLogin": {
-        "reference": {
-          "keyVault": {
-            "id": "/subscriptions/f39cfa98-3294-41b9-888b-f25ea18c9dd2/resourceGroups/my-rg2/providers/Microsoft.KeyVault/vaults/PetersVault1"
-          },
-          "secretName": "sqlServerAdministratorLogin"
-        }
-      },
-      "sqlServerAdministratorPassword": {
-        "reference": {
-          "keyVault": {
-            "id": "/subscriptions/f39cfa98-3294-41b9-888b-f25ea18c9dd2/resourceGroups/my-rg2/providers/Microsoft.KeyVault/vaults/PetersVault1"
-          },
-          "secretName": "sqlServerAdministratorPassword"
-        }
-      }
     }
-  }
+}
