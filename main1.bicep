@@ -95,7 +95,7 @@ resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' = {
     enableSoftDelete: true
     softDeleteRetentionInDays: 90
     vaultUri: vaultUri
-    publicNetworkAccess: 'Enabled'
+    publicNetworkAccess: 'Disabled'
     }
 }
 
