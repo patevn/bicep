@@ -17,17 +17,26 @@ param solutionName string = 'toyhr${uniqueString(resourceGroup().id)}'
 param appServicePlanInstanceCount int = 1
 
 @description('The name and tier of the App Service plan SKU.')
-param appServicePlanSku object = {
-  name: 'F1'
-  tier: 'Free'
-}
+param appServicePlanSku object
 
 @description('The Azure region into which the resources should be deployed.')
 param location string = 'Australia Central'
 
+@description('sql db username')
+@secure()
+param sqlServerAdministratorLogin string
+
+@description('sql db pw')
+@secure()
+param sqlServerAdministratorPassword string
+
+@description('The name and tier of the sql db SKU.')
+param sqlDatabaseSku object
+
 var appServicePlanName = '${environmentName}-${solutionName}-plan'
 var appServiceAppName = '${environmentName}-${solutionName}-app'
-
+var sqlServerName = '${environmentName}-${solutionName}-sql'
+var sqlDatabaseName = 'Employees'
 
 resource appServicePlan 'Microsoft.Web/serverfarms@2022-03-01' = {
   name: appServicePlanName
@@ -46,4 +55,38 @@ resource appServiceApp 'Microsoft.Web/sites@2022-03-01' = {
     serverFarmId: appServicePlan.id
     httpsOnly: true
   }
+}
+
+// resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' = {
+//   name: 'PetersVault1'
+//   location: location
+//   properties: {
+//     tenantId: subscription().tenantId
+//     sku: {
+//       family: 'A'
+//       name: 'string'
+//     }
+//     enabledForTemplateDeployment: true
+//   }
+// }
+
+resource sqlServer 'Microsoft.Sql/servers@2022-05-01-preview' = {
+  name: sqlServerName
+  location: location
+  properties: {
+    administratorLogin: sqlServerAdministratorLogin
+    administratorLoginPassword: sqlServerAdministratorPassword
+  }
+  // dependsOn: [ keyVault ]
+}
+
+resource sqlDatabase 'Microsoft.Sql/servers/databases@2022-05-01-preview' = {
+  parent: sqlServer
+  name: sqlDatabaseName
+  location: location
+  sku: {
+    name: sqlDatabaseSku.name
+    tier: sqlDatabaseSku.tier
+  }
+  // dependsOn: [ keyVault ]
 }
